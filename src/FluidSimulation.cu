@@ -129,11 +129,15 @@ void FluidSimulation::step(float dt) {
        !std::isfinite(settings.velocityDecay) || settings.velocityDecay<0 ||
        !std::isfinite(settings.dyeDecay) || settings.dyeDecay<0)
         throw std::invalid_argument("Invalid simulation timestep or decay");
+    if(timing) timing->begin();
     advectVelocity<<<blocks(size_+1),threads>>>(u_.data(),v_.data(),uNext_.data(),vNext_.data(),size_,dt,std::exp(-settings.velocityDecay*dt));
     launched(); u_.swap(uNext_); v_.swap(vNext_);
+    if(timing) timing->mark(1);
     project();
+    if(timing) timing->mark(2);
     advectDye<<<blocks(size_),threads>>>(dye_.data(),dyeNext_.data(),u_.data(),v_.data(),size_,dt,std::exp(-settings.dyeDecay*dt));
     launched(); dye_.swap(dyeNext_);
+    if(timing) timing->mark(3);
 }
 void FluidSimulation::writePixels(float4* pixels) const {
     pixelsKernel<<<blocks(size_),threads>>>(dye_.data(),pixels,size_); launched();

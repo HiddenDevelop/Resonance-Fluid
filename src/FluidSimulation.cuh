@@ -1,5 +1,7 @@
 #pragma once
 #include "CudaUtils.cuh"
+#include "StepTimer.cuh"
+#include <memory>
 
 struct Splat {
     // Normalized position, velocity change in cells/second, radius in cells.
@@ -33,6 +35,7 @@ public:
     Diagnostics diagnostics() const; // slow CPU readback, tests only
     int size() const { return size_; }
     FluidSettings settings;
+    std::unique_ptr<StepTimer> timing; // null during ordinary usage
 private:
     int size_;
     // MAC grid. Both face fields use (N+1)^2 storage for simple indexing.
