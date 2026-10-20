@@ -1,14 +1,15 @@
 cmake_minimum_required(VERSION 3.24)
+# Set before project(), which initializes architecture defaults during CUDA detection.
+if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
+    set(CMAKE_CUDA_ARCHITECTURES native)
+endif()
 project(Resonance VERSION 0.1.0 LANGUAGES C CXX CUDA)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CUDA_STANDARD 20)
 set(CMAKE_CUDA_STANDARD_REQUIRED ON)
-# Build for the installed GPU by default; override for distribution builds.
-if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
-    set(CMAKE_CUDA_ARCHITECTURES native)
-endif()
+
 find_package(CUDAToolkit 12.0 REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(Python3 COMPONENTS Interpreter REQUIRED)
