@@ -1,8 +1,7 @@
 #pragma once
 #include "CudaUtils.cuh"
 
-struct Splat
-{
+struct Splat {
     // Normalized position, velocity change in cells/second, radius in cells.
     float x = 0.5f, y = 0.5f;
     float velocityX = 0, velocityY = 0;
@@ -10,14 +9,12 @@ struct Splat
     float3 color = {0.08f, 0.7f, 1.0f};
     float dyeAmount = 0.3f;
 };
-struct FluidSettings
-{
+struct FluidSettings {
     float velocityDecay = 0.15f; // exponential rate per second
     float dyeDecay = 0.08f;
     int pressureIterations = 80;
 };
-struct Diagnostics
-{
+struct Diagnostics {
     double divergenceRms = 0;
     double dyeSum = 0;
     float maxSpeed = 0;
@@ -25,19 +22,17 @@ struct Diagnostics
     bool wallsClosed = true;
 };
 
-class FluidSimulation
-{
+class FluidSimulation {
 public:
     explicit FluidSimulation(int size = 256);
     void reset();
-    void addSplat(const Splat &splat);
+    void addSplat(const Splat& splat);
     void step(float dt);
     void project(); // also exposed for the numerical regression test
-    void writePixels(float4 *devicePixels) const;
+    void writePixels(float4* devicePixels) const;
     Diagnostics diagnostics() const; // slow CPU readback, tests only
     int size() const { return size_; }
     FluidSettings settings;
-
 private:
     int size_;
     // MAC grid. Both face fields use (N+1)^2 storage for simple indexing.
