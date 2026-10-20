@@ -1,0 +1,9 @@
+/build*/
+/out/
+/.tools/
+/.venv/
+*.user
+*.suo
+.vs/
+.vscode/
+__pycache__/
