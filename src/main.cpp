@@ -65,6 +65,8 @@ int main(int argc, char **argv)
             glfwCreateWindow(1000, 900, "Resonance", nullptr, nullptr), glfwDestroyWindow);
         if (!window)
             throw std::runtime_error("OpenGL 3.3 window creation failed");
+        // Retain short key taps even if press and release arrive in the same poll.
+        glfwSetInputMode(window.get(), GLFW_STICKY_KEYS, GLFW_TRUE);
         glfwMakeContextCurrent(window.get());
         if (!gladLoadGL(glfwGetProcAddress))
             throw std::runtime_error("OpenGL function loading failed");
@@ -80,6 +82,7 @@ int main(int argc, char **argv)
         double previous = glfwGetTime(), accumulator = 0, titleStart = previous;
         int frames = 0, smokeFrames = 0;
         bool paused = false, dirty = true;
+        const double smokeStart = glfwGetTime();
         while (!glfwWindowShouldClose(window.get()))
         {
             glfwPollEvents();
@@ -118,6 +121,7 @@ int main(int argc, char **argv)
                 s.velocityX = -12 * std::sin(smokeFrames * 0.05f);
                 s.velocityY = 12 * std::cos(smokeFrames * 0.05f);
                 simulation.addSplat(s);
+                simulation.step(float(fixedStep));
                 simulation.step(float(fixedStep));
                 dirty = true;
             }
@@ -164,7 +168,8 @@ int main(int argc, char **argv)
                 auto d = simulation.diagnostics();
                 if (!d.finite || !d.wallsClosed || d.dyeSum <= 0 || glGetError() != GL_NO_ERROR)
                     throw std::runtime_error("Smoke test failed: invalid fields or OpenGL error");
-                std::cout << "PASS: 240 CUDA steps and CUDA/OpenGL presentations; divergence RMS " << d.divergenceRms << '\n';
+                std::cout << "PASS: 480 CUDA steps and 240 CUDA/OpenGL presentations; divergence RMS " << d.divergenceRms
+                          << "; average presentation rate " << 240 / (glfwGetTime() - smokeStart) << " FPS (includes synchronization, vsync and final diagnostics)\n";
                 break;
             }
         }
